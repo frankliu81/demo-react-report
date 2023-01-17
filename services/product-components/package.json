@@ -1,5 +1,5 @@
 {
-  "name": "product-components",
+  "name": "@dil-team-eevee/product-components",
   "version": "1.0.0",
   "description": "product components",
   "main": "index.tsx",
