@@ -11,10 +11,13 @@ export class RenderingLambdaStack extends cdk.Stack {
     // The code that defines your stack goes here
     
     const fn = new NodejsFunction(this, "frank-rendering-function", {
-      entry: path.join(__dirname, "../src/index.ts"),
+      entry: path.join(__dirname, "../src/index.js"),
       handler: 'handler', // this string should match the exports in lambda
       bundling: {
-        externalModules: ['aws-sdk']
+        externalModules: ['aws-sdk'],
+        esbuildArgs: { // Pass additional arguments to esbuild
+          "--loader:.js": "jsx"
+        }
       },
     });
 
