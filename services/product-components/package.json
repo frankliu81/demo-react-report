@@ -1,0 +1,24 @@
+{
+  "name": "product-components",
+  "version": "1.0.0",
+  "description": "product components",
+  "main": "index.tsx",
+  "scripts": {
+    "build": "npm run clean && node build.js && tsc --emitDeclarationOnly --outDir dist",
+    "clean": "rimraf dist",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.26",
+    "@types/react-dom": "^18.0.10",
+    "esbuild": "^0.17.1",
+    "rimraf": "^4.1.0",
+    "typescript": "^4.9.4"
+  }
+}
