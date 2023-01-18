@@ -1,6 +1,16 @@
 import React from "react";
 import ReactDOMServer from "react-dom/server";
-import SSRApp from "./SSRApp";
+import * as AWS from 'aws-sdk';
+// import vm from 'vm';
+// import * as fs from 'fs';
+import {
+  requireFromString,
+  importFromString,
+  importFromStringSync
+} from 'module-from-string'
+
+// not used
+// import SSRApp from "./SSRApp";
 
 const indexFile = `
 <!DOCTYPE html>
@@ -31,9 +41,32 @@ const handler = async function (event) {
       { id: 4, name: "item 4", desc: "product 4 description", price: "4.00" },
       { id: 5, name: "item 5", desc: "product 5 description", price: "5.00" },
     ]};
-    console.log("SSRApp 2: ")
-    console.log(<SSRApp data={result.data} />)
-    const app = ReactDOMServer.renderToString(<SSRApp data={result.data} />);
+    console.log("SSRApp: ")
+    // force react and react-dom include into node_modules during esbuild so it will be part of the lambeda
+    // can be fixed with layers
+    const s3 = new AWS.S3();
+    const params = { Bucket: 'frank-product-templates', Key: 'template.js' };
+    const response = await s3.getObject(params).promise();
+    const template = response.Body?.toString('utf-8') || '';
+    const templateModule = requireFromString(template);
+    const app = ReactDOMServer.renderToString(templateModule.SSRApp({data: result.data}));
+
+    // did not work on Error Cannot find module '@dil-team-eevee/product-components' Require stack: - /tmp/template.js
+    // console.log('file contents:', template);
+    // fs.writeFileSync('/tmp/template.js', template);
+    // const templateModule = await import('/tmp/template.js');
+    // const app = templateModule.default(result.data);
+    
+
+    // did not work on exported function
+    // https://stackoverflow.com/questions/69391079/execute-function-from-s3-downloaded-javascript-file-without-creating-a-local-fil
+    // const script = new vm.Script(template);
+    // script.runInThisContext()
+    // console.log(SSRApp({result.data}))
+  
+    
+    // console.log(<SSRApp data={result.data} />)
+    // const app = ReactDOMServer.renderToString(<SSRApp data={result.data} />);
     const html = indexFile.replace(
       '<div id="root"></div>',
       `<div id="root">${app}</div>`

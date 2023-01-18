@@ -1,7 +1,7 @@
 const { build } = require("esbuild");
 const { dependencies } = require("./package.json");
 
-const entryFile = "src2/index.js";
+const entryFile = "src/SSRApp.js";
 const shared = {
   bundle: true,
   loader: { '.js': 'jsx' },
@@ -11,8 +11,16 @@ const shared = {
   logLevel: "info",
   minify: true,
   sourcemap: true,
+  // 	https://github.com/evanw/esbuild/issues/29
+  platform: "node",
+  // https://github.com/evanw/esbuild/issues/44
+  // https://github.com/evanw/esbuild/issues/704
+  define: {
+    'process.env.NODE_ENV': '\"production\"'
+  },
 };
 
 build({
   ...shared,
+  outfile: "./dist/template.js"
 })
