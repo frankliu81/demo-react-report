@@ -38,6 +38,7 @@ const handler = async function (event) {
       '<div id="root"></div>',
       `<div id="root">${app}</div>`
     );
+    
     return {
       statusCode: 200,
       headers: { "Content-Type": "text/html" },

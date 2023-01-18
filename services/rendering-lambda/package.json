@@ -5,10 +5,13 @@
     "rendering-lambda": "bin/rendering-lambda.js"
   },
   "scripts": {
+    "preinstall": "npm run co:login",
+    "co:login": "aws codeartifact login --tool npm --repository dil-team-eevee --domain dli-team-eevee --domain-owner 621579430158 --region us-west-2",
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "cdk": "cdk"
+    "cdk": "cdk",
+    "esbuild": "node build.js"
   },
   "devDependencies": {
     "@types/jest": "^29.2.5",
@@ -20,10 +23,10 @@
     "typescript": "~4.9.4"
   },
   "dependencies": {
+    "@dil-team-eevee/product-components": "^1.0.2",
     "aws-cdk-lib": "2.60.0",
     "constructs": "^10.0.0",
     "esbuild": "^0.17.0",
-    "product-components": "file:../product-components",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "source-map-support": "^0.5.21"

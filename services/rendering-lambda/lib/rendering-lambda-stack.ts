@@ -15,6 +15,7 @@ export class RenderingLambdaStack extends cdk.Stack {
       handler: 'handler', // this string should match the exports in lambda
       bundling: {
         externalModules: ['aws-sdk'],
+        nodeModules: ['@dil-team-eevee/product-components'],
         esbuildArgs: { // Pass additional arguments to esbuild
           "--loader:.js": "jsx",
         },

@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-// import directly from local directory so it is compiled into the lambda from esbuild
-// but this could be npm install from a private npm registry
-import { ProductList } from "../../product-components/src";
+// import directly from local directory on lambda
+import { ProductList } from "../node_modules/@dil-team-eevee/product-components";
 
 const SSRApp = ({ data }) => {
   const [result, setResult] = useState({ loading: false, products: data });
+  console.log('ProductList')
+  console.log(ProductList)
   return (
     <div>
       <ProductList result={result} />
