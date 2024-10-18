@@ -20,7 +20,11 @@ export class RenderingLambdaStack extends cdk.Stack {
     });
 
 
-    const chromiumLayerArn = 'arn:aws:lambda:ca-central-1:536986426115:layer:chromium:1';
+    // publicly distributed lambda layer from https://github.com/shelfio/chrome-aws-lambda-layer
+    const chromiumLayerArn = 'arn:aws:lambda:ca-central-1:764866452798:layer:chrome-aws-lambda:49';
+
+    // manualy created lambda layer
+    // const chromiumLayerArn = 'arn:aws:lambda:ca-central-1:536986426115:layer:chromium:1';
 
     // Reference the existing layer using the ARN
     const chromiumLayer = lambda.LayerVersion.fromLayerVersionArn(this, 'chromium-layer', chromiumLayerArn);
