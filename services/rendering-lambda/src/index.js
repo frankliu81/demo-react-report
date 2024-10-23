@@ -4,6 +4,9 @@ import SSRApp from "./SSRApp";
 import * as AWS from 'aws-sdk';
 import puppeteer from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
+import fs from 'fs';
+import htmlToDocx from 'html-to-docx';
+// will get ReadableStream undefined if not included
 import { ReadableStream } from 'web-streams-polyfill/polyfill';
 
 
@@ -39,36 +42,16 @@ const handler = async function (event) {
     console.log("SSRApp 3: ")
     console.log(<SSRApp data={result.data} />)
     const app = ReactDOMServer.renderToString(<SSRApp data={result.data} />);
-    const html = indexFile.replace(
+    const htmlString = indexFile.replace(
       '<div id="root"></div>',
       `<div id="root">${app}</div>`
     );
-    console.log(html);
+    console.log(htmlString);
 
     const s3 = new AWS.S3();
-    const params = { Bucket: 'frank-react-report', Key: 'report.html', Body: html };
+    const params = { Bucket: 'frank-react-report', Key: 'report.html', Body: htmlString };
     const response = await s3.putObject(params).promise();
     console.log('Here is your HTML!.');
-
-    //// Getting Error EROFS: read-only file system, open 
-    // convert html to pdf using puppeteer
-    // await (async () => {
-    //   const browser = await puppeteer.launch({
-    //     args: chromium.args,
-    //     defaultViewport: chromium.defaultViewport,
-    //     executablePath: await chromium.executablePath('/opt/nodejs/node_modules/@sparticuz/chromium/bin'),
-    //     headless: chromium.headless,
-    //     ignoreHTTPSErrors: true,
-    //   });
-    //   console.log('Launch puppeteer!.');
-    //   const page = await browser.newPage();
-    //   await page.setContent(html);
-    //   const pdf = await page.pdf({ path: 'report.pdf', format: 'A4' });
-    //   await browser.close();
-    //   const params2 = { Bucket: 'frank-react-report', Key: 'report.pdf', Body: pdf };
-    //   const response2 = await s3.putObject(params).promise();
-    //   console.log('Here is your PDF!.');
-    // })();
 
      // Convert HTML to PDF using Puppeteer
      const browser = await puppeteer.launch({
@@ -81,7 +64,7 @@ const handler = async function (event) {
     console.log('Puppeteer launched.');
 
     const page = await browser.newPage();
-    await page.setContent(html);
+    await page.setContent(htmlString);
 
     // Write the PDF to the /tmp directory in Lambda
     const pdfPath = '/tmp/report.pdf';  // Use /tmp for writing files
@@ -90,7 +73,6 @@ const handler = async function (event) {
     console.log('PDF Generated.');
 
     // Read the PDF from /tmp directory
-    const fs = require('fs');
     const pdfBuffer = fs.readFileSync(pdfPath);
 
     // Upload the PDF to S3
@@ -98,10 +80,23 @@ const handler = async function (event) {
     await s3.putObject(paramsPdf).promise();
     console.log('PDF uploaded to S3.');
     
+    // Convert HTML to word doc
+    // clean the html from the noscript tag to avoid getting the message. "You need to enable JavaScript to run this app."
+    const cleanedHtml = htmlString.replace(/<noscript[^>]*>([\s\S]*?)<\/noscript>/gi, '');
+    const docxBuffer = await htmlToDocx(cleanedHtml, null, {}, null);
+    fs.writeFileSync('/tmp/report.docx', docxBuffer);
+    
+    // Upload the PDF to S3
+    const paramsDocx = { Bucket: 'frank-react-report', Key: 'report.docx', Body: docxBuffer };
+    await s3.putObject(paramsDocx).promise();
+    console.log('DOCX uploaded to S3.');
+    
+
+
     return {
       statusCode: 200,
       headers: { "Content-Type": "text/html" },
-      body: html,
+      body: htmlString,
     };
   } catch (error) {
     console.log(`Error ${error.message}`);

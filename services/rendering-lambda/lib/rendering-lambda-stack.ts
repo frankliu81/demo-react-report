@@ -31,7 +31,7 @@ export class RenderingLambdaStack extends cdk.Stack {
 
     
     const writeS3ObjFn = new NodejsFunction(this, "frank-rendering-function", {
-      entry: path.join(__dirname, "../src3/index.js"),
+      entry: path.join(__dirname, "../src/index.js"),
       runtime: lambda.Runtime.NODEJS_16_X,  
       handler: 'handler', // this string should match the exports in lambda
       timeout: cdk.Duration.minutes(5),
